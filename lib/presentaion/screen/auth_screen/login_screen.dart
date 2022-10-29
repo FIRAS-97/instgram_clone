@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instgram_clone/presentaion/screen/auth_screen/sign_up_screen.dart';
-import 'package:instgram_clone/presentaion/screen/home_screen.dart';
+import 'package:instgram_clone/presentaion/screen/mobile_screen.dart';
+import 'package:instgram_clone/presentaion/screen/web_screen.dart';
 import 'package:instgram_clone/presentaion/widget/snack_bar.dart';
 import 'package:instgram_clone/utilis/color_const/colors.dart';
+import 'package:instgram_clone/utilis/core/responsive_screen.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/circular_progress.dart';
 import '../../widget/textField.dart';
-
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({
@@ -19,11 +20,11 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final TextEditingController emailEditingController =
         TextEditingController();
     final TextEditingController passwordEditingController =
         TextEditingController();
+    bool isloading = false;
 
     final String assetName = 'assets/ic_instagram.svg';
 
@@ -32,14 +33,18 @@ class LoginScreen extends StatelessWidget {
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is loadingLogInState) {
-            loadingProgress();
+            isloading = true;
+            // loadingProgress();
             print("loading zzzzzzzzzzzzzzzzz");
           } else if (state is successLogInState) {
+            isloading = false;
             SnackBarWidget().snackBarSuccess(
                 message: state.succesMessage, context: context);
             Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: ((context) => HomeScreen())),
+                MaterialPageRoute(
+                    builder: ((context) => ResponsiveScreen(
+                        MobileScreen: MobileScreen(), WebScreen: WebScreen()))),
                 (route) => false);
 
             print("succsess zzzzzzzzzzzzzzzzz");
@@ -90,9 +95,11 @@ class LoginScreen extends StatelessWidget {
                           email: emailEditingController.text,
                           password: passwordEditingController.text));
                     },
-                    child: ButtonWidget(
-                      text: "Log In",
-                    ),
+                    child: isloading
+                        ? loadingProgress()
+                        : ButtonWidget(
+                            text: "Log In",
+                          ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12),
@@ -101,7 +108,8 @@ class LoginScreen extends StatelessWidget {
                       children: [
                         Text(" Don't have an account ?  "),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
+                            
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

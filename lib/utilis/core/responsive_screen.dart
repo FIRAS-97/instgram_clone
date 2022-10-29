@@ -3,13 +3,12 @@ import 'package:flutter/cupertino.dart';
 class ResponsiveScreen extends StatelessWidget {
   final Widget MobileScreen;
   final Widget WebScreen;
-  final Widget LoginScreen;
-  const ResponsiveScreen(
-      {Key? key,
-      required this.MobileScreen,
-      required this.WebScreen,
-      required this.LoginScreen})
-      : super(key: key);
+
+  const ResponsiveScreen({
+    Key? key,
+    required this.MobileScreen,
+    required this.WebScreen,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +18,7 @@ class ResponsiveScreen extends StatelessWidget {
         if (constraints.maxWidth > webScreenSize) {
           return WebScreen;
         }
-        return LoginScreen;
+        return MobileScreen;
       }),
     );
   }

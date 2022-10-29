@@ -9,6 +9,7 @@ abstract class AddImageState extends Equatable {
 
 class AddImageInitial extends AddImageState {}
 
+class LoadingAddImageFromGallaryState extends AddImageState {}
 
 class SuccssAddImageFromGallaryState extends AddImageState {}
 

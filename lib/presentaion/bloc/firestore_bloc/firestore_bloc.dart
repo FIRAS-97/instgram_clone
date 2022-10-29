@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
@@ -11,24 +12,36 @@ part 'firestore_event.dart';
 part 'firestore_state.dart';
 
 class FirestoreBloc extends Bloc<FirestoreEvent, FirestoreState> {
-  String? imageUrl;
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  Map<String, dynamic>? data;
+  String? nn;
+
+  String? downloadUrl;
+
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirestoreBloc() : super(FirestoreBlocInitial()) {
-    on<AddDataToFirestoreEvent>(addDataToFirestore);
     on<AddDataToStorageCloudEvent>(addDataToStorageCloude);
+    on<AddDataToFirestoreEvent>(addDataToFirestore);
+
+    on<GetDataFromFirestoreEvent>(GetDataFromFirestore);
   }
 
   Future<void> addDataToFirestore(
       FirestoreEvent event, Emitter<FirestoreState> emit) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+
     if (event is AddDataToFirestoreEvent) {
       emit(LoadingAddDataToFirestoreState());
       try {
         await _firestore.collection("users").doc(event.uid2).set({
+          "userName": event.userName,
           "userEmail": event.userEmail,
           "PhoneNumber": event.phoneNumber,
           "following": event.following,
           "followers": event.followers,
-          "file": event.image,
+          // "image": event.image,
+          "image": downloadUrl,
         });
         emit(SuccessAddDataToFirestoreState(successMessage: "Success"));
       } catch (e) {
@@ -39,22 +52,42 @@ class FirestoreBloc extends Bloc<FirestoreEvent, FirestoreState> {
   }
 
   //////////////////////////////////////////////////////////////////////////////
+  Future<void> GetDataFromFirestore(
+      FirestoreEvent event, Emitter<FirestoreState> emit) async {
+    if (event is GetDataFromFirestoreEvent) {
+      emit(LoadingGetDataFromFirestoreState());
+      try {
+        DocumentSnapshot snap =
+            await _firestore.collection("users").doc(event.uid).get();
+        data = (snap.data() as Map<String, dynamic>);
+        String userEmail2 = data!['userEmail'];
+        print("aaaaaaaaaaaaaaaa$userEmail2");
+
+        emit(SuccesGetDataFromFirestoreState(successMessage: "Success"));
+      } catch (e) {
+        emit(ErrorGetDataFromFirestoreState(
+            errorMessage: "Failed to add user: ${e.toString()}"));
+      }
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
   Future<void> addDataToStorageCloude(
       FirestoreEvent event, Emitter<FirestoreState> emit) async {
-    final FirebaseStorage storage = FirebaseStorage.instance;
-    final FirebaseAuth auth = FirebaseAuth.instance;
+    // final FirebaseAuth auth = FirebaseAuth.instance;
     if (event is AddDataToStorageCloudEvent) {
       emit(loadingAddtoStorageCloudState());
 
       try {
-        Reference ref = storage.ref().child(event.folderName).child(
-            event.uid);
+        Reference ref = storage
+            .ref()
+            .child(event.folderName)
+            .child("//instgram-clone-2e7e9.appspot.com/");
         UploadTask uploadTask = ref.putData(event.file);
         TaskSnapshot snap = await uploadTask;
-        String downloadUrl = await snap.ref.getDownloadURL();
-        imageUrl = downloadUrl;
-        print("aheddddddddddddddddddddddddddddddddddddddddddddddddd");
-        print(imageUrl);
+        downloadUrl = await snap.ref.getDownloadURL();
+        // print("aheddddddddddddddddddddddddddddddddddddddddddddddddd");
+        print(downloadUrl);
 
         emit(SuccessAddtoStorageCloudState());
       } catch (e) {

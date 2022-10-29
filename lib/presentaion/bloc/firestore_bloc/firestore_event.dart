@@ -14,11 +14,11 @@ class AddDataToFirestoreEvent extends FirestoreEvent {
   final String? phoneNumber;
   final List? following;
   final List? followers;
-  final String? image;
+  // final String? image;
 
   AddDataToFirestoreEvent(
-      {required this.uid2,
-      this.image,
+      {this.uid2,
+      // this.image,
       this.userName,
       this.userEmail,
       this.phoneNumber,
@@ -26,25 +26,32 @@ class AddDataToFirestoreEvent extends FirestoreEvent {
       this.followers});
 }
 
-// class GetDataFromFirestoreEvent extends FirestoreEvent {
-//   final String? userName;
-//   final String? userEmail;
-//   final String? phoneNumber;
-//   final List? following;
-//   final List? followers;
-//   // final Uint8List file;
+class GetDataFromFirestoreEvent extends FirestoreEvent {
+  final String? userName;
+  final String? uid;
+  final String? userEmail;
+  final String? phoneNumber;
+  final String? following;
+  final String? followers;
+  final String? image;
 
-//   GetDataFromFirestoreEvent(
-//       {this.userName,
-//       // required this.file,
-//       this.userEmail,
-//       this.phoneNumber,
-//       this.following,
-//       this.followers});
-// }
+  final String? file;
+
+  GetDataFromFirestoreEvent(
+      {this.image,
+      this.file,
+      this.uid,
+      this.userName,
+      this.userEmail,
+      this.phoneNumber,
+      this.following,
+      this.followers});
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 class AddDataToStorageCloudEvent extends FirestoreEvent {
-  final String uid;
+  final String? uid;
+  
   final String folderName;
   final Uint8List file;
   final bool isPaass;

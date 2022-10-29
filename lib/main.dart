@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:instgram_clone/presentaion/bloc/add_image/add_image_bloc.dart';
 import 'package:instgram_clone/presentaion/bloc/auth_bloc/auth_bloc.dart';
 import 'package:instgram_clone/presentaion/bloc/firestore_bloc/firestore_bloc.dart';
 import 'package:instgram_clone/presentaion/screen/mobile_screen.dart';
+import 'package:instgram_clone/presentaion/widget/circular_progress.dart';
 import 'package:instgram_clone/utilis/core/responsive_screen.dart';
 import 'presentaion/screen/auth_screen/login_screen.dart';
 import 'presentaion/screen/web_screen.dart';
@@ -60,17 +62,32 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Instgram Clone',
-        theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: mobileBackgroundColor,
-        ),
-        home: ResponsiveScreen(
-          WebScreen: WebScreen(),
-          MobileScreen: MobileScreen(),
-          LoginScreen: LoginScreen(),
-        ),
-      ),
+          debugShowCheckedModeBanner: false,
+          title: 'Instgram Clone',
+          theme: ThemeData.dark().copyWith(
+            scaffoldBackgroundColor: mobileBackgroundColor,
+          ),
+          home: StreamBuilder(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: ((context, snapshot) {
+                if (ConnectionState == ConnectionState.active) {
+                  if (snapshot.hasData) {
+                    return ResponsiveScreen(
+                      WebScreen: WebScreen(),
+                      MobileScreen: MobileScreen(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    Center(
+                      child: Text("${snapshot.hasError}"),
+                    );
+                  }
+                }
+                if (ConnectionState == ConnectionState.waiting) {
+                  loadingProgress();
+                }
+                return LoginScreen();
+              }))),
     );
   }
 }

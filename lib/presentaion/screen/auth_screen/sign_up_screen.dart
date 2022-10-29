@@ -31,6 +31,8 @@ class SignUpScreen extends StatelessWidget {
     final TextEditingController PhoneNumberEditingController =
         TextEditingController();
     Uint8List? image;
+    String? uid;
+    bool isloading = false;
 
     final String assetName = 'assets/ic_instagram.svg';
 
@@ -39,16 +41,15 @@ class SignUpScreen extends StatelessWidget {
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is loadingSignUpState) {
-              loadingProgress();
+              isloading = true;
 
               print("ddddddddddddddddd");
             } else if (state is successSignUpState) {
+              uid = BlocProvider.of<AuthBloc>(context).uid3;
+              isloading = false;
               SnackBarWidget().snackBarSuccess(
                   message: state.succesMessage, context: context);
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: ((_) => LoginScreen())),
-                  (route) => false);
+
               print("success ssssssssssssss");
             } else if (state is ErrorSignUpState) {
               SnackBarWidget()
@@ -67,13 +68,40 @@ class SignUpScreen extends StatelessWidget {
               print("add data to firestore ${state.successMessage}");
             } else if (state is ErorrAddDataToFirestoreState) {
               print("Don't add data to firestore ${state.errorMessage}");
-            } else if (state is loadingAddtoStorageCloudState) {
-              print("loading add");
+            }
+            if (state is loadingAddtoStorageCloudState) {
+              print("loading add to Storage Cloude");
             } else if (state is SuccessAddtoStorageCloudState) {
+              BlocProvider.of<FirestoreBloc>(
+                context,
+              ).add(
+                AddDataToFirestoreEvent(
+                  uid2: uid,
+                  userName: userNameEditingController.text,
+                  userEmail: emailEditingController.text,
+                  phoneNumber: PhoneNumberEditingController.text,
+                  // image:
+                  //     BlocProvider.of<FirestoreBloc>(context).imageUrl,
+
+                  // followers: follower,
+                  // following: following,
+                ),
+              );
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: ((_) => LoginScreen())),
+                  (route) => false);
               print("Add Data To Storage ");
             } else if (state is ErrorAddtoStorageCloudState) {
               print("Don't Add Data To Storage Cloude ");
             }
+            // if (state is LoadingGetDataFromFirestoreState) {
+            //   print("1111111111111");
+            // } else if (state is SuccesGetDataFromFirestoreState) {
+            //   print("22222222222222222222");
+            // } else if (state is ErrorGetDataFromFirestoreState) {
+            //   print("333333333333333333333333");
+            // }
           },
         ),
 
@@ -102,7 +130,8 @@ class SignUpScreen extends StatelessWidget {
                   ),
                   BlocBuilder<AddImageBloc, AddImageState>(
                     builder: (context, state) {
-                      if (state is SuccssAddImageFromGallaryState) {
+                      if (state is LoadingAddImageFromGallaryState) {
+                      } else if (state is SuccssAddImageFromGallaryState) {
                         image = BlocProvider.of<AddImageBloc>(context)
                             .imageFromGalary;
                         print("qqqqqqqqqqqqqqqqqqqqqqqq");
@@ -112,18 +141,18 @@ class SignUpScreen extends StatelessWidget {
 
                       return Stack(
                         children: [
-                          image != null
-                              ? CircleAvatar(
-                                  backgroundImage: MemoryImage(
-                                      BlocProvider.of<AddImageBloc>(context)
-                                          .imageFromGalary!),
-                                  radius: 60,
-                                )
-                              : const CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      "https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"),
-                                  radius: 60,
-                                ),
+                          isloading
+                              ? loadingProgress()
+                              : image != null
+                                  ? CircleAvatar(
+                                      backgroundImage: MemoryImage(image!),
+                                      radius: 60,
+                                    )
+                                  : const CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          "https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"),
+                                      radius: 60,
+                                    ),
                           Positioned(
                             bottom: -10,
                             left: 80,
@@ -189,32 +218,44 @@ class SignUpScreen extends StatelessWidget {
                       ).add(await signUpEvent(
                           email: emailEditingController.text,
                           password: passwordEditingController.text));
-                      ///////////////////////////////////////////////////
+                      /////////////////////////////////////////////////
+                      // BlocProvider.of<FirestoreBloc>(
+                      //   context,
+                      // ).add(
+                      //   await AddDataToFirestoreEvent(
+                      //     uid2: uid,
+                      //     userName: userNameEditingController.text,
+                      //     userEmail: emailEditingController.text,
+                      //     phoneNumber: PhoneNumberEditingController.text,
+                      //     // image:
+                      //     //     BlocProvider.of<FirestoreBloc>(context).imageUrl,
+
+                      //     // followers: follower,
+                      //     // following: following,
+                      //   ),
+                      // );
+                      //////////////////////////////////////////////////
                       BlocProvider.of<FirestoreBloc>(context).add(
-                      await    AddDataToStorageCloudEvent(
-                              uid: BlocProvider.of<AuthBloc>(context).uid3!,
+                          await AddDataToStorageCloudEvent(
                               folderName: userNameEditingController.text,
-                              isPaass: false,
-                              file: image!));
+                              uid: uid,
+                              file: image!,
+                              isPaass: false));
                       /////////////////////////////////////////////////////////
-                      BlocProvider.of<FirestoreBloc>(
-                        context,
-                      ).add(
-                        await AddDataToFirestoreEvent(
-                          uid2: BlocProvider.of<AuthBloc>(context).uid3,
-                          userName: userNameEditingController.text,
-                          userEmail: emailEditingController.text,
-                          phoneNumber: PhoneNumberEditingController.text,
-                          image:
-                              BlocProvider.of<FirestoreBloc>(context).imageUrl,
-                          // followers: follower,
-                          // following: following,
-                        ),
-                      );
+
+                      ////////////////////////////////////////////////////////
+                      // BlocProvider.of<FirestoreBloc>(context)
+                      //     .add(await GetDataFromFirestoreEvent(
+                      //   userEmail: "userEmail",
+                      //   uid: BlocProvider.of<AuthBloc>(context).uid3,
+                      // ));
+                      ////////////////////////////////////////////////////////////////////
                     },
-                    child: ButtonWidget(
-                      text: "Sign Up",
-                    ),
+                    child: isloading
+                        ? loadingProgress()
+                        : ButtonWidget(
+                            text: "Sign Up",
+                          ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12),
