@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:instgram_clone/utilis/color_const/colors.dart';
-import 'package:instgram_clone/presentaion/bloc/firestore_bloc/firestore_bloc.dart';
 import '../../bloc/add_image/add_image_bloc.dart';
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/firestore_bloc/firestore_bloc.dart';

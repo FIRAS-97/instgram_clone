@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:instgram_clone/presentaion/screen/auth_screen/sign_up_screen.dart';
-import 'package:instgram_clone/presentaion/screen/mobile_screen.dart';
-import 'package:instgram_clone/presentaion/screen/web_screen.dart';
-import 'package:instgram_clone/presentaion/widget/snack_bar.dart';
+import 'package:instgram_clone/features/presentaion/screen/auth_screen/sign_up_screen.dart';
+
 import 'package:instgram_clone/utilis/color_const/colors.dart';
 import 'package:instgram_clone/utilis/core/responsive_screen.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/circular_progress.dart';
+import '../../widget/snack_bar.dart';
 import '../../widget/textField.dart';
+import '../mobile_screen.dart';
+import '../web_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({
